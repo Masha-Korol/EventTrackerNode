@@ -7,10 +7,10 @@ module.exports = {
         return res.status(200).json({
             id: chatId,
             messages: [
-                {id: 1, userName: 'Marina', text: 'Hello! how are you?', date: '11/20/2000'},
-                {id: 2, userName: 'Maria', text: 'I\'m great! You?', date: '11/20/2000'},
-                {id: 3, userName: 'Marina', text: 'Yeah. Me too. Btw, wanna go to the workshop tomorrow?', date: '11/20/2000'},
-                {id: 4, userName: 'Maria', text: 'I\'d love to', date: '11/20/2000'},
+                {id: 1, userName: 'Marina', text: 'Hello! how are you?', date: '11/20/2000', isCurrentUserAuthor: false},
+                {id: 2, userName: 'Maria', text: 'I\'m great! You?', date: '11/20/2000', isCurrentUserAuthor: true},
+                {id: 3, userName: 'Marina', text: 'Yeah. Me too. Btw, wanna go to the workshop tomorrow?', date: '11/20/2000', isCurrentUserAuthor: false},
+                {id: 4, userName: 'Maria', text: 'I\'d love to', date: '11/20/2000', isCurrentUserAuthor: true},
             ]
         });
     },

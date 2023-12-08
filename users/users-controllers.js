@@ -17,19 +17,19 @@ module.exports = {
                 {id: 3, userName: 'boyfriend'},
             ],
             userMessages: [
-                {id: 1, userName: 'friendElf', lastMessage: 'Hey. How are you?'},
-                {id: 2, userName: 'boyfriend', lastMessage: 'I miss you ('}
+                {id: 1, userName: 'friendElf', lastMessage: 'Hey. How are you?', chatId: 2},
+                {id: 2, userName: 'boyfriend', lastMessage: 'I miss you (', chatId: 3}
             ]
         });
     },
 
     getUserInfo: (req, res) => {
-        const userName = req.params.username;
+        const userId = req.params.id;
 
         // get from the db
 
         return res.status(200).json({
-            userName: userName,
+            userName: userId,
             isUserFriend: true,
             userEvents: [
                 {id: 1, 'eventName': 'event33', 'city': 'Владивосток', 'date': '12/12/2007'},
@@ -42,13 +42,13 @@ module.exports = {
 
     sendFriendRequest: (req, res) => {
         const payload = req.body;
-        const userName = payload.userName;
+        const userId = payload.userId;
         // get user from auth context
         const currentUserName = '';
 
         // update the db
 
-        console.log(`Friend request was sent by user '${currentUserName}' to user '${userName}'`);
+        console.log(`Friend request was sent by user '${currentUserName}' to user '${userId}'`);
         return res.status(200).json({});
     }
 }

@@ -38,14 +38,14 @@ module.exports = {
         // modify in the db
 
         console.log(`Event was updated: ${JSON.stringify({
-        'id': 1,
-        'eventName': payload.eventName,
-        'eventDescription': payload.eventDescription
+        id: 1,
+        eventName: payload.eventName,
+        eventDescription: payload.eventDescription
         })}`);
         return res.status(200).json({
-            'id': 1,
-            'eventName': payload.eventName,
-            'eventDescription': payload.eventDescription
+            id: 1,
+            eventName: payload.eventName,
+            eventDescription: payload.eventDescription
         });
     },
 
@@ -56,14 +56,14 @@ module.exports = {
         // modify in the db
 
         console.log(`Event was updated: ${JSON.stringify({
-            'id': eventId,
-            'eventName': payload.eventName,
-            'eventDescription': payload.eventDescription
+            id: eventId,
+            eventName: payload.eventName,
+            eventDescription: payload.eventDescription
         })}`);
         return res.status(200).json({
-            'id': eventId,
-            'eventName': payload.eventName,
-            'eventDescription': payload.eventDescription
+            id: eventId,
+            eventName: payload.eventName,
+            eventDescription: payload.eventDescription
         });
     },
 
