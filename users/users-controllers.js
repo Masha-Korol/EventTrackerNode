@@ -19,7 +19,8 @@ module.exports = {
             userMessages: [
                 {id: 1, userName: 'friendElf', lastMessage: 'Hey. How are you?', chatId: 2},
                 {id: 2, userName: 'boyfriend', lastMessage: 'I miss you (', chatId: 3}
-            ]
+            ],
+            isAdmin: true
         });
     },
 

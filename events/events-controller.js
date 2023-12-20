@@ -34,18 +34,22 @@ module.exports = {
 
     createEvent: (req, res) => {
         const payload = req.body;
+        const eventName = payload.eventName;
+        const eventDescription = payload.eventDescription;
+        const date = payload.date;
+        const startTime = payload.startTime;
+        const artistId = payload.artistId;
+        const venueId = payload.venueId;
 
         // modify in the db
 
-        console.log(`Event was updated: ${JSON.stringify({
-        id: 1,
-        eventName: payload.eventName,
-        eventDescription: payload.eventDescription
+        console.log(`Event was created: ${JSON.stringify({
+            id: 1, eventName, eventDescription, date, startTime, artistId, venueId
         })}`);
         return res.status(200).json({
             id: 1,
-            eventName: payload.eventName,
-            eventDescription: payload.eventDescription
+            eventName: eventName,
+            eventDescription: eventDescription
         });
     },
 
