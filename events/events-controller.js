@@ -1,38 +1,38 @@
-module.exports = {
-    getEvents: (req, res) => {
-        // get from the db
+const eventModel = require('./event-model');
 
-        return res.status(200).json([
-            {id: 1, posterFile: 'gorillaz.jpg'},
-            {id: 2, posterFile: 'mychemicalromance.jpg'},
-            {id: 3, posterFile: 'placebo.jpg'},
-        ]);
+module.exports = {
+    getEvents: async (req, res) => {
+        const eventsResults = [];
+        const events = await eventModel.find({});
+
+        //TODO posterFile ???
+        for (const event of events) {
+            eventsResults.push({id: (await event).id, posterFile: 'gorillaz.jpg'});
+        }
+
+        return res.status(200).json(eventsResults);
     },
 
-    getEvent: (req, res) => {
+    getEvent: async (req, res) => {
         const eventId = req.params.id;
 
-        // get from the db
+        const foundEvent = await eventModel.findById(eventId);
 
-        return res.status(200).json({
-            id: 1,
-            eventName: 'event1',
-            eventDescription: 'very cool event',
-            posterFile: 'gorillaz.jpg',
-            date: '11/20/2018',
-            city: 'Москва',
-            venue: 'Event Hall',
-            start: '19:00',
-            willGo: true,
-            mark: 4,
-            eventComments: [
-                {id: 1, userName: 'friend', text: 'Very good! I liked it!', date: '12/13/2000 11:28 am'},
-                {id: 2, userName: 'user123', text: 'I enjoyed it', date: '12/13/2000 11:28 am'},
-            ]
-        });
+        //TODO
+        foundEvent.posterFile = 'gorillaz.jpg';
+
+        //TODO get from other tables
+        foundEvent.willGo = true;
+        foundEvent.mark = 5;
+        foundEvent.eventComments = [
+            {id: 1, userName: 'myfriend', text: 'HELLO', date: '12/12/2022'},
+            {id: 1, userName: 'anotherFriend', text: 'liked this concert A LOT!', date: '10/05/2020'},
+        ];
+
+        return res.status(200).json(foundEvent);
     },
 
-    createEvent: (req, res) => {
+    createEvent: async (req, res) => {
         const payload = req.body;
         const eventName = payload.eventName;
         const eventDescription = payload.eventDescription;
@@ -41,16 +41,12 @@ module.exports = {
         const artistId = payload.artistId;
         const venueId = payload.venueId;
 
-        // modify in the db
+        const createdEvent = await eventModel.create(req.body);
 
         console.log(`Event was created: ${JSON.stringify({
             id: 1, eventName, eventDescription, date, startTime, artistId, venueId
         })}`);
-        return res.status(200).json({
-            id: 1,
-            eventName: eventName,
-            eventDescription: eventDescription
-        });
+        return res.status(200).json(createdEvent);
     },
 
     updateEvent: (req, res) => {
@@ -58,23 +54,21 @@ module.exports = {
         const payload = req.body;
 
         // modify in the db
+        const updatedEvent = eventModel.findByIdAndUpdate(eventId, payload);
 
         console.log(`Event was updated: ${JSON.stringify({
             id: eventId,
             eventName: payload.eventName,
             eventDescription: payload.eventDescription
         })}`);
-        return res.status(200).json({
-            id: eventId,
-            eventName: payload.eventName,
-            eventDescription: payload.eventDescription
-        });
+        return res.status(200).json(updatedEvent);
     },
 
-    deleteEvent: (req, res) => {
+    deleteEvent: async (req, res) => {
         const eventId = req.params.id;
 
         // modify in the db
+        eventModel.findByIdAndDelete(eventId);
 
         console.log(`Event '${eventId}' was deleted`);
         return res.status(200);

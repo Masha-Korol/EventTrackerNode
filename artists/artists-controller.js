@@ -1,22 +1,16 @@
-module.exports = {
-    getArtists: (req, res) => {
-        // get from the db
+const artistModel = require('./artist-model');
 
-        return res.status(200).json([
-            {id: 1, artistName: 'Gorillaz'},
-            {id: 2, artistName: 'My Chemical Romance'},
-            {id: 3, artistName: 'Placebo'},
-        ]);
+module.exports = {
+    getArtists: async (req, res) => {
+        const artists = await artistModel.find({});
+        return res.status(200).json(artists);
     },
 
-    addArtist: (req, res) => {
-        const payload = req.body;
-        const artistName = payload.artistName;
-        const artistDescription = payload.artistDescription;
+    addArtist: async (req, res) => {
+        console.log(`Creating new artist: ${req.body}`);
+        const newArtist = await artistModel.create(req.body);
 
-        // modify in the db
-
-        console.log(`Artist was created - ${artistName}, ${artistDescription}`);
-        return res.status(200).json();
+        console.log(`Artist was created: ${newArtist}`);
+        return res.status(200).json(newArtist);
     }
 }

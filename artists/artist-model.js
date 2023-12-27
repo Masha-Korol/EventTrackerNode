@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 const artistSchema = mongoose.Schema(
     {
@@ -10,10 +10,9 @@ const artistSchema = mongoose.Schema(
             type: String,
             required: false,
         }
-    }
-).set('toJSON', {
-    virtuals: true
-});
+    },
+    { id: true }
+).set('toJSON', {virtuals: true});
 
 
 const artist = mongoose.model('artist', artistSchema);

@@ -1,22 +1,22 @@
-module.exports = {
-    getVenues: (req, res) => {
-        // get from the db
+const venueModel = require('./venues-model');
+const cityModel = require('./../cities/city-model');
 
-        return res.status(200).json([
-            {id: 1, venueName: 'Event Hall', cityName: 'Воронеж'},
-            {id: 2, venueName: 'Арена Открытие', cityName: 'Москва'},
-            {id: 3, venueName: 'Лужники', cityName: 'Москва'},
-        ]);
+module.exports = {
+    getVenues: async (req, res) => {
+        const venuesResult = [];
+        const venues = await venueModel.find({});
+
+        for (const venue of venues) {
+            const city = await cityModel.findById(venue.cityId);
+            venuesResult.push({id: venue.id, venueName: venue.venueName, cityName: city.cityName});
+        }
+
+        return res.status(200).json(venuesResult);
     },
 
-    addVenue: (req, res) => {
-        const payload = req.body;
-        const venueName = payload.venueName;
-        const cityId = payload.cityId;
-
-        // modify in the db
-
-        console.log(`Venue was created - ${venueName}, ${cityId}`);
-        return res.status(200).json();
+    addVenue: async (req, res) => {
+        const createdVenue = await venue.create(req.body);
+        console.log(`Venue was created - ${createdVenue}`);
+        return res.status(200).json(createdVenue);
     }
 }

@@ -20,6 +20,4 @@ function getMongoDBUri() {
     return `mongodb://${mongoUsername}:${mongoPassword}@${mongoHost}:${mongoPort}/${mongoDatabase}`;
 }
 
-module.exports = {
-    connectToMongoDB
-};
+module.exports = connectToMongoDB;
