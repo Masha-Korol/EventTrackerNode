@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 
 const citySchema = mongoose.Schema(
     {
-        cityName: { type: String, required: true }
+        cityName: {type: String, required: true}
     },
-    { id: true }
+    {id: true}
 ).set('toJSON', {virtuals: true});
 
-const city = mongoose.model('city', citySchema);
+const cityModel = mongoose.model('city', citySchema);
 
-module.exports = city;
+module.exports = cityModel;

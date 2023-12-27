@@ -2,16 +2,10 @@ const mongoose = require('mongoose');
 
 const artistSchema = mongoose.Schema(
     {
-        artistName: {
-            type: String,
-            required: true,
-        },
-        artistDescription: {
-            type: String,
-            required: false,
-        }
+        artistName: {type: String, required: true},
+        artistDescription: {type: String, required: false},
     },
-    { id: true }
+    {id: true}
 ).set('toJSON', {virtuals: true});
 
 

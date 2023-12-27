@@ -1,4 +1,4 @@
-const eventModel = require('./event-model');
+const {eventModel} = require('./event-model');
 
 module.exports = {
     getEvents: async (req, res) => {
@@ -16,20 +16,38 @@ module.exports = {
     getEvent: async (req, res) => {
         const eventId = req.params.id;
 
-        const foundEvent = await eventModel.findById(eventId);
+        const resultEvent = {};
+        let event = await eventModel.findById(eventId)
+            .populate({
+                path: 'venueId',
+                populate: {
+                    path: 'cityId',
+                    model: 'city'
+                }
+            })
+            .populate('artistId')
+            .populate('comments');
+
+        resultEvent.id = event.id;
+        resultEvent.eventName = event.eventName;
+        resultEvent.date = event.date.toLocaleDateString();
+        resultEvent.start = event.startTime;
+        resultEvent.city = event.venueId.cityId.cityName;
+        resultEvent.venue = event.venueId.venueName;
+
+        resultEvent.eventComments = [];
+        event.comments.forEach(comment => {
+            resultEvent.eventComments.push({id: comment.id, userName: comment.userName, text: comment.text, date: comment.date.toLocaleDateString()});
+        });
 
         //TODO
-        foundEvent.posterFile = 'gorillaz.jpg';
+        resultEvent.posterFile = 'gorillaz.jpg';
 
         //TODO get from other tables
-        foundEvent.willGo = true;
-        foundEvent.mark = 5;
-        foundEvent.eventComments = [
-            {id: 1, userName: 'myfriend', text: 'HELLO', date: '12/12/2022'},
-            {id: 1, userName: 'anotherFriend', text: 'liked this concert A LOT!', date: '10/05/2020'},
-        ];
+        resultEvent.willGo = true;
+        resultEvent.mark = 5;
 
-        return res.status(200).json(foundEvent);
+        return res.status(200).json(resultEvent);
     },
 
     createEvent: async (req, res) => {
@@ -38,8 +56,8 @@ module.exports = {
         const eventDescription = payload.eventDescription;
         const date = payload.date;
         const startTime = payload.startTime;
-        const artistId = payload.artistId;
         const venueId = payload.venueId;
+        const artistId = payload.artistId;
 
         const createdEvent = await eventModel.create(req.body);
 
@@ -47,6 +65,10 @@ module.exports = {
             id: 1, eventName, eventDescription, date, startTime, artistId, venueId
         })}`);
         return res.status(200).json(createdEvent);
+    },
+
+    uploadEventPoster: async (req, res) => {
+        console.log(`Files got: ${JSON.stringify(req.files.length)}`);
     },
 
     updateEvent: (req, res) => {

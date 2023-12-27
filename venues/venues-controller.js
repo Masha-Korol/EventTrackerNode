@@ -15,7 +15,7 @@ module.exports = {
     },
 
     addVenue: async (req, res) => {
-        const createdVenue = await venue.create(req.body);
+        const createdVenue = await venueModel.create(req.body);
         console.log(`Venue was created - ${createdVenue}`);
         return res.status(200).json(createdVenue);
     }
