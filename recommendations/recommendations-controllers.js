@@ -1,20 +1,40 @@
+const userModel = require('./../users/user-model');
+const {eventModel} = require('./../events/event-model');
+
 module.exports = {
-    getRecommendations: (req, res) => {
+    getRecommendations: async (req, res) => {
         // get user from auth context
-        const user = '';
+        const currentUserId = '658cbde710161d4ee9a9ac35';
+        const currentUser = await userModel.findById(currentUserId);
 
         // generate
 
+        const recommendedUsersResult = [];
+        const users = await userModel.find({});
+        for (const user of users) {
+            if (currentUser.id !== user.id && !currentUser.friends.includes(user.id)) {
+                recommendedUsersResult.push({id: user.id, userName: user.userName});
+            }
+        }
+
+        const recommendedEventsResult = [];
+        const events = await eventModel.find({})
+            .populate({
+                path: 'venueId',
+                populate: {
+                    path: 'cityId',
+                    model: 'city'
+                }
+            });
+        for (const event of events) {
+            if (!currentUser.events.includes(event.id)) {
+                recommendedEventsResult.push({id: event.id, eventName: event.eventName, city: event.venueId.cityId.cityName, date: event.date.toLocaleString()});
+            }
+        }
+
         return res.status(200).json({
-            recommendedEvents: [
-                {id: 1, 'eventName': 'event33', 'city': 'Владивосток', 'date': '12/12/2012'},
-                {id: 2, 'eventName': 'event231', 'city': 'Питер', 'date': '04/12/2012'}
-            ],
-            recommendedUsers: [
-                {id: 1, 'userName': 'admin'},
-                {id: 2, 'userName': 'unknown'},
-                {id: 3, 'userName': 'Marina'},
-            ]
+            recommendedEvents: recommendedEventsResult,
+            recommendedUsers: recommendedUsersResult
         });
     },
 }

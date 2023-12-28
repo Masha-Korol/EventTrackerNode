@@ -6,6 +6,10 @@ const userSchema = new mongoose.Schema(
         events: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: 'event'
+        }],
+        friends: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'user'
         }]
     },
     {id: true}

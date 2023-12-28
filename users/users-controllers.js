@@ -1,27 +1,38 @@
+const userModel = require('./../users/user-model');
+
 module.exports = {
-    getProfileInfo: (req, res) => {
+    getProfileInfo: async (req, res) => {
         // get user from auth context
-        const userName = '';
+        const userId = '658cbde710161d4ee9a9ac35';
 
-        // get from the db
+        const userResult = {};
+        const user = await userModel.findById(userId)
+            .populate({
+                path: 'events',
+                populate: {
+                    path: 'venueId',
+                    populate: {
+                        path: 'cityId',
+                        model: 'city'
+                    }
+                }
+            })
+            .populate('friends');
+        userResult.userName = user.userName;
 
-        return res.status(200).json({
-            userName: 'Masha',
-            userEvents: [
-                {id: 1, eventName: 'event1', city: 'Воронеж', date: '12/22/2028'},
-                {id: 2, eventName: 'event2', city: 'Москва', date: '13/22/2028'}
-            ],
-            userFriends: [
-                {id: 1, userName: 'friendElf'},
-                {id: 2, userName: 'friendHobbit'},
-                {id: 3, userName: 'boyfriend'},
-            ],
-            userMessages: [
-                {id: 1, userName: 'friendElf', lastMessage: 'Hey. How are you?', chatId: 2},
-                {id: 2, userName: 'boyfriend', lastMessage: 'I miss you (', chatId: 3}
-            ],
-            isAdmin: true
+        userResult.userEvents = [];
+        user.events.forEach(event => {
+            userResult.userEvents.push({id: event.id, eventName: event.eventName, city: event.venueId.cityId.cityName, date: event.date.toLocaleDateString()});
         });
+
+        userResult.userFriends = [];
+        user.friends.forEach(friend => {
+            userResult.userFriends.push({id: friend.id, userName: friend.userName, lastMessage: 'I miss you (', chatId: 1});
+        });
+
+        userResult.isAdmin = true;
+
+        return res.status(200).json(userResult);
     },
 
     getUserInfo: (req, res) => {
@@ -41,15 +52,43 @@ module.exports = {
         });
     },
 
-    sendFriendRequest: (req, res) => {
+    sendFriendRequest: async (req, res) => {
+        const payload = req.body;
+        const userId = payload.userId;
+        const friendUser = payload.friendUser;
+        // get user from auth context
+        const currentUserId = '658cbde710161d4ee9a9ac35';
+
+        const currentUser = await userModel.findById(currentUserId);
+
+        if (friendUser) {
+            if (!currentUser.friends.includes(userId)) {
+                await userModel.findByIdAndUpdate(currentUser.id,
+                    {$push: {friends: userId}},
+                    {new: true, useFindAndModify: false});
+            }
+        } else {
+            // remove from friends
+            if (currentUser.friends.includes(userId)) {
+                await userModel.findByIdAndUpdate(currentUser.id,
+                    {$pull: {friends: userId}},
+                    {new: true, useFindAndModify: false});
+            }
+        }
+
+        console.log(`Friend request was sent by user '${currentUserId}' to user '${userId}'`);
+        return res.status(200).json({});
+    },
+
+    acceptFriendRequest: (req, res) => {
         const payload = req.body;
         const userId = payload.userId;
         // get user from auth context
-        const currentUserName = '';
+        const currentUserId = '658cbde710161d4ee9a9ac35';
 
         // update the db
 
-        console.log(`Friend request was sent by user '${currentUserName}' to user '${userId}'`);
+        console.log(`Friend request was accepted by user '${currentUserId}' to user '${userId}'`);
         return res.status(200).json({});
     }
 }
