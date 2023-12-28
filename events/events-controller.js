@@ -1,4 +1,5 @@
-const {eventModel} = require('./event-model');
+const {eventModel, markModel} = require('./event-model');
+const userModel = require('./../users/user-model');
 
 module.exports = {
     getEvents: async (req, res) => {
@@ -40,12 +41,16 @@ module.exports = {
             resultEvent.eventComments.push({id: comment.id, userName: comment.userName, text: comment.text, date: comment.date.toLocaleDateString()});
         });
 
+        // get user from authentication context
+        const userId = '658cbde710161d4ee9a9ac35';
+        const user = await userModel.findById(userId);
+        resultEvent.willGo = user.events.includes(eventId);
+
         //TODO
         resultEvent.posterFile = 'gorillaz.jpg';
 
-        //TODO get from other tables
-        resultEvent.willGo = true;
-        resultEvent.mark = 5;
+        const mark = await markModel.findOne({userId, eventId});
+        resultEvent.mark = !mark ? undefined : mark.mark;
 
         return res.status(200).json(resultEvent);
     },
@@ -96,25 +101,39 @@ module.exports = {
         return res.status(200);
     },
 
-    modifyEventState: (req, res) => {
+    modifyEventState: async (req, res) => {
         const eventId = req.params.id;
         // get user from authentication context
-        const userId = '';
+        const userId = '658cbde710161d4ee9a9ac35';
 
-        // modify in the db
+        const user = await userModel.findById(userId);
+        if (user.events.includes(eventId)) {
+            await userModel.findByIdAndUpdate(userId,
+                {$pull: {events: eventId}},
+                {new: true, useFindAndModify: false});
+        } else {
+            await userModel.findByIdAndUpdate(userId,
+                {$push: {events: eventId}},
+                {new: true, useFindAndModify: false});
+        }
 
         console.log(`Event '${eventId}' state was modified for user '${userId}'`);
         return res.status(200);
     },
 
-    modifyEventRank: (req, res) => {
+    modifyEventRank: async (req, res) => {
         const eventId = req.params.id;
         const payload = req.body;
         // get user from authentication context
-        const userId = '';
+        const userId = '658cbde710161d4ee9a9ac35';
         const newMark = payload.newMark;
 
-        // modify in the db
+        const mark = await markModel.findOne({userId, eventId});
+        if (!mark) {
+            await markModel.create({userId, eventId, mark: newMark});
+        } else {
+            await markModel.findByIdAndUpdate(mark.id, {userId, eventId, mark: newMark});
+        }
 
         console.log(`Rank was changed to '${newMark}' for the event '${eventId}' for user '${userId}'`);
         return res.status(200).json({});
