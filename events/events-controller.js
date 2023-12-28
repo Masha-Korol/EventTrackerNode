@@ -66,9 +66,7 @@ module.exports = {
 
         const createdEvent = await eventModel.create(req.body);
 
-        console.log(`Event was created: ${JSON.stringify({
-            id: 1, eventName, eventDescription, date, startTime, artistId, venueId
-        })}`);
+        console.log(`Event was created: ${JSON.stringify(createdEvent)}`);
         return res.status(200).json(createdEvent);
     },
 

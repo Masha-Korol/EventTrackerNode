@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const artistSchema = mongoose.Schema(
+const artistSchema = new mongoose.Schema(
     {
         artistName: {type: String, required: true},
         artistDescription: {type: String, required: false},
@@ -9,6 +9,6 @@ const artistSchema = mongoose.Schema(
 ).set('toJSON', {virtuals: true});
 
 
-const artist = mongoose.model('artist', artistSchema);
+const artistModel = mongoose.model('artist', artistSchema);
 
-module.exports = artist;
+module.exports = artistModel;

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const commentSchema = mongoose.Schema(
+const commentSchema = new mongoose.Schema(
     {
         userName: {type: String, required: true},
         text: {type: String, required: true},
@@ -10,6 +10,6 @@ const commentSchema = mongoose.Schema(
     {id: true}
 ).set('toJSON', {virtuals: true});
 
-const comment = mongoose.model('comment', commentSchema);
+const commentModel = mongoose.model('comment', commentSchema);
 
-module.exports = {commentModel: comment, commentSchema};
+module.exports = {commentModel, commentSchema};

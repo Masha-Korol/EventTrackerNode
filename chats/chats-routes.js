@@ -1,6 +1,7 @@
 const router = require('express').Router();
-const ChatsController = require("../chats/chats-controllers");
+const ChatsController = require('../chats/chats-controllers');
 
-router.get('/:id', ChatsController.getChatMessages);
+router.get('/:userId', ChatsController.getChat);
+router.post('/:userId', ChatsController.sendMessage);
 
 module.exports = router;

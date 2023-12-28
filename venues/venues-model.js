@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const venueSchema = mongoose.Schema(
+const venueSchema = new mongoose.Schema(
     {
         venueName: {type: String, required: true},
         cityId: {type: String, required: true}
@@ -8,6 +8,6 @@ const venueSchema = mongoose.Schema(
     {id: true}
 ).set('toJSON', {virtuals: true});
 
-const venue = mongoose.model('venue', venueSchema);
+const venueModel = mongoose.model('venue', venueSchema);
 
-module.exports = venue;
+module.exports = venueModel;
