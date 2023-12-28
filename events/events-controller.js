@@ -1,56 +1,79 @@
-module.exports = {
-    getEvents: (req, res) => {
-        // get from the db
+const {eventModel, markModel} = require('./event-model');
+const userModel = require('./../users/user-model');
 
-        return res.status(200).json([
-            {id: 1, posterFile: 'gorillaz.jpg'},
-            {id: 2, posterFile: 'mychemicalromance.jpg'},
-            {id: 3, posterFile: 'placebo.jpg'},
-        ]);
+module.exports = {
+    getEvents: async (req, res) => {
+        const eventsResults = [];
+        const events = await eventModel.find({});
+
+        //TODO posterFile ???
+        for (const event of events) {
+            eventsResults.push({id: (await event).id, posterFile: 'gorillaz.jpg'});
+        }
+
+        return res.status(200).json(eventsResults);
     },
 
-    getEvent: (req, res) => {
+    getEvent: async (req, res) => {
         const eventId = req.params.id;
 
-        // get from the db
+        const resultEvent = {};
+        let event = await eventModel.findById(eventId)
+            .populate({
+                path: 'venueId',
+                populate: {
+                    path: 'cityId',
+                    model: 'city'
+                }
+            })
+            .populate('artistId')
+            .populate('comments');
 
-        return res.status(200).json({
-            id: 1,
-            eventName: 'event1',
-            eventDescription: 'very cool event',
-            posterFile: 'gorillaz.jpg',
-            date: '11/20/2018',
-            city: 'Москва',
-            venue: 'Event Hall',
-            start: '19:00',
-            willGo: true,
-            mark: 4,
-            eventComments: [
-                {id: 1, userName: 'friend', text: 'Very good! I liked it!', date: '12/13/2000 11:28 am'},
-                {id: 2, userName: 'user123', text: 'I enjoyed it', date: '12/13/2000 11:28 am'},
-            ]
+        resultEvent.id = event.id;
+        resultEvent.eventName = event.eventName;
+        resultEvent.date = event.date.toLocaleDateString();
+        resultEvent.start = event.startTime;
+        resultEvent.city = event.venueId.cityId.cityName;
+        resultEvent.venue = event.venueId.venueName;
+
+        resultEvent.eventComments = [];
+        event.comments.forEach(comment => {
+            resultEvent.eventComments.push({id: comment.id, userName: comment.userName, text: comment.text, date: comment.date.toLocaleDateString()});
         });
+
+        // get user from authentication context
+        const userId = '658cbde710161d4ee9a9ac35';
+        const user = await userModel.findById(userId);
+        resultEvent.willGo = user.events.includes(eventId);
+
+        //TODO
+        resultEvent.posterFile = 'gorillaz.jpg';
+
+        const mark = await markModel.findOne({userId, eventId});
+        resultEvent.mark = !mark ? undefined : mark.mark;
+
+        return res.status(200).json(resultEvent);
     },
 
-    createEvent: (req, res) => {
+    createEvent: async (req, res) => {
         const payload = req.body;
         const eventName = payload.eventName;
         const eventDescription = payload.eventDescription;
         const date = payload.date;
         const startTime = payload.startTime;
-        const artistId = payload.artistId;
         const venueId = payload.venueId;
+        const artistId = payload.artistId;
 
-        // modify in the db
+        const createdEvent = await eventModel.create(req.body);
 
         console.log(`Event was created: ${JSON.stringify({
             id: 1, eventName, eventDescription, date, startTime, artistId, venueId
         })}`);
-        return res.status(200).json({
-            id: 1,
-            eventName: eventName,
-            eventDescription: eventDescription
-        });
+        return res.status(200).json(createdEvent);
+    },
+
+    uploadEventPoster: async (req, res) => {
+        console.log(`Files got: ${JSON.stringify(req.files.length)}`);
     },
 
     updateEvent: (req, res) => {
@@ -58,47 +81,59 @@ module.exports = {
         const payload = req.body;
 
         // modify in the db
+        const updatedEvent = eventModel.findByIdAndUpdate(eventId, payload);
 
         console.log(`Event was updated: ${JSON.stringify({
             id: eventId,
             eventName: payload.eventName,
             eventDescription: payload.eventDescription
         })}`);
-        return res.status(200).json({
-            id: eventId,
-            eventName: payload.eventName,
-            eventDescription: payload.eventDescription
-        });
+        return res.status(200).json(updatedEvent);
     },
 
-    deleteEvent: (req, res) => {
+    deleteEvent: async (req, res) => {
         const eventId = req.params.id;
 
         // modify in the db
+        eventModel.findByIdAndDelete(eventId);
 
         console.log(`Event '${eventId}' was deleted`);
         return res.status(200);
     },
 
-    modifyEventState: (req, res) => {
+    modifyEventState: async (req, res) => {
         const eventId = req.params.id;
         // get user from authentication context
-        const userId = '';
+        const userId = '658cbde710161d4ee9a9ac35';
 
-        // modify in the db
+        const user = await userModel.findById(userId);
+        if (user.events.includes(eventId)) {
+            await userModel.findByIdAndUpdate(userId,
+                {$pull: {events: eventId}},
+                {new: true, useFindAndModify: false});
+        } else {
+            await userModel.findByIdAndUpdate(userId,
+                {$push: {events: eventId}},
+                {new: true, useFindAndModify: false});
+        }
 
         console.log(`Event '${eventId}' state was modified for user '${userId}'`);
         return res.status(200);
     },
 
-    modifyEventRank: (req, res) => {
+    modifyEventRank: async (req, res) => {
         const eventId = req.params.id;
         const payload = req.body;
         // get user from authentication context
-        const userId = '';
+        const userId = '658cbde710161d4ee9a9ac35';
         const newMark = payload.newMark;
 
-        // modify in the db
+        const mark = await markModel.findOne({userId, eventId});
+        if (!mark) {
+            await markModel.create({userId, eventId, mark: newMark});
+        } else {
+            await markModel.findByIdAndUpdate(mark.id, {userId, eventId, mark: newMark});
+        }
 
         console.log(`Rank was changed to '${newMark}' for the event '${eventId}' for user '${userId}'`);
         return res.status(200).json({});

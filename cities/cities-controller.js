@@ -1,23 +1,16 @@
-module.exports = {
-    getCities: (req, res) => {
-        // get from the db
+const cityModel = require('./city-model');
 
-        return res.status(200).json([
-            {id: 1, cityName: 'Москва'},
-            {id: 2, cityName: 'Санкт-Петербург'},
-            {id: 3, cityName: 'Воронеж'},
-            {id: 4, cityName: 'Калининград'},
-            {id: 5, cityName: 'Вологда'},
-        ]);
+module.exports = {
+    getCities: async (req, res) => {
+        const cities = await cityModel.find({});
+
+        return res.status(200).json(cities);
     },
 
-    addCity: (req, res) => {
-        const payload = req.body;
-        const cityName = payload.cityName;
+    addCity: async (req, res) => {
+        const newCity= await cityModel.create(req.body);
 
-        // modify in the db
-
-        console.log(`City was created - ${cityName}`);
-        return res.status(200).json();
+        console.log(`City was created - ${newCity}`);
+        return res.status(200).json(newCity);
     }
 }
