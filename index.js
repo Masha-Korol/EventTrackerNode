@@ -11,12 +11,15 @@ const ArtistRoutes = require('./artists/astists-routes');
 const VenueRoutes = require('./venues/venues-routes');
 const cors = require('cors');
 const connectToMongoDB = require('./config/mongo');
+const {basicAuth} = require('./util/authentication-helper');
 
 async function startServer(){
     const app = express();
     app.use(cors());
     app.use(express.json());
     app.use(express.static('public'));
+
+    app.use(basicAuth);
 
     app.use(fileUpload());
 

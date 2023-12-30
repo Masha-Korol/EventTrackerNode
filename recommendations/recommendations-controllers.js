@@ -3,8 +3,7 @@ const {eventModel} = require('./../events/event-model');
 
 module.exports = {
     getRecommendations: async (req, res) => {
-        // get user from auth context
-        const currentUserId = '65900dacf252cbe183316218';
+        const currentUserId = req.currentUserId;
         const currentUser = await userModel.findById(currentUserId);
 
         // generate

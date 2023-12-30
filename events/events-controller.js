@@ -15,6 +15,27 @@ module.exports = {
         return res.status(200).json(eventsResults);
     },
 
+    getDetailedEvents: async (req, res) => {
+        const eventsResults = [];
+        const events = await eventModel.find({})
+            .populate({
+                path: 'venueId',
+                populate: {
+                    path: 'cityId',
+                    model: 'city'
+                }
+            })
+            .populate('artistId');
+
+        for (const event of events) {
+            eventsResults.push({id: event.id, eventName: event.eventName, eventDescription: event.eventDescription, date: event.date.toLocaleString(),
+                startTime: event.startTime, eventPosterFileName: event.eventPosterFileName,
+                venueName: event.venueId.venueName, cityName: event.venueId.cityId.cityName, artistName: event.artistId.artistName});
+        }
+
+        return res.status(200).json(eventsResults);
+    },
+
     getEvent: async (req, res) => {
         const eventId = req.params.id;
 
@@ -42,8 +63,7 @@ module.exports = {
             resultEvent.eventComments.push({id: comment.id, userName: comment.userName, text: comment.text, date: comment.date.toLocaleDateString()});
         });
 
-        // get user from authentication context
-        const userId = '65900dacf252cbe183316218';
+        const userId = req.currentUserId;
         const user = await userModel.findById(userId);
         resultEvent.willGo = user.events.includes(eventId);
 
@@ -62,9 +82,22 @@ module.exports = {
             eventPosterFileName: payload.eventPosterFileName, venueId: payload.venueId, artistId: payload.artistId};
 
         const createdEvent = await eventModel.create(eventToBeCreated);
-
         console.log(`Event was created: ${JSON.stringify(createdEvent)}`);
-        return res.status(200).json(createdEvent);
+
+        const newEvent = await eventModel.findById(createdEvent.id)
+            .populate({
+                path: 'venueId',
+                populate: {
+                    path: 'cityId',
+                    model: 'city'
+                }
+            })
+            .populate('artistId');
+
+        const eventResult = {id: newEvent.id, eventName: newEvent.eventName, eventDescription: newEvent.eventDescription, date: newEvent.date.toLocaleString(),
+            startTime: newEvent.startTime, eventPosterFileName: newEvent.eventPosterFileName,
+            venueName: newEvent.venueId.venueName, cityName: newEvent.venueId.cityId.cityName, artistName: newEvent.artistId.artistName}
+        return res.status(200).json(eventResult);
     },
 
     uploadEventPoster: async (req, res) => {
@@ -102,7 +135,6 @@ module.exports = {
     deleteEvent: async (req, res) => {
         const eventId = req.params.id;
 
-        // modify in the db
         eventModel.findByIdAndDelete(eventId);
 
         console.log(`Event '${eventId}' was deleted`);
@@ -111,8 +143,7 @@ module.exports = {
 
     modifyEventState: async (req, res) => {
         const eventId = req.params.id;
-        // get user from authentication context
-        const userId = '65900dacf252cbe183316218';
+        const userId = req.currentUserId;
 
         const user = await userModel.findById(userId);
         if (user.events.includes(eventId)) {
@@ -132,8 +163,7 @@ module.exports = {
     modifyEventRank: async (req, res) => {
         const eventId = req.params.id;
         const payload = req.body;
-        // get user from authentication context
-        const userId = '65900dacf252cbe183316218';
+        const userId = req.currentUserId;
         const newMark = payload.newMark;
 
         const mark = await markModel.findOne({userId, eventId});

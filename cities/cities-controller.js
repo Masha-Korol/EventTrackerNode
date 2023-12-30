@@ -3,7 +3,6 @@ const cityModel = require('./city-model');
 module.exports = {
     getCities: async (req, res) => {
         const cities = await cityModel.find({});
-
         return res.status(200).json(cities);
     },
 

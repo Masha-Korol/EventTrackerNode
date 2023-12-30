@@ -1,10 +1,23 @@
 const userModel = require('./../users/user-model');
 const {chatModel} = require('./../chats/chat-model');
+const {authenticate} = require('../util/authentication-helper');
 
 module.exports = {
+    login: async (req, res) => {
+        const payload = req.body;
+        const userName = payload.userName;
+        const password = payload.password;
+
+        const currentUser = await authenticate(userName, password);
+        if (!currentUser) {
+            return res.status(403).json({});
+        }
+
+        return res.status(200).json({userName, password});
+    },
+
     getProfileInfo: async (req, res) => {
-        // get user from auth context
-        const currentUserId = '65900dacf252cbe183316218';
+        const currentUserId = req.currentUserId;
 
         const user = await userModel.findById(currentUserId)
             .populate({
@@ -19,7 +32,7 @@ module.exports = {
             })
             .populate('friends');
 
-        const userResult = {userName: user.userName};
+        const userResult = {userName: user.userName, isAdmin: user.isAdmin};
 
         userResult.userEvents = [];
         user.events.forEach(event => {
@@ -27,8 +40,7 @@ module.exports = {
         });
 
         userResult.userMessages = [];
-        const chats = await chatModel.find({})
-            .populate('users');
+        const chats = await chatModel.find({}).populate('users');
         for (const chat of chats) {
             if (chat.users.map(chatUser => chatUser.id).includes(currentUserId)) {
                 const user = chat.users.filter(user => user.id!== currentUserId)[0];
@@ -41,17 +53,13 @@ module.exports = {
             userResult.userFriends.push({id: friend.id, userName: friend.userName});
         });
 
-        //TODO
-        userResult.isAdmin = true;
-
         return res.status(200).json(userResult);
     },
 
     getUserInfo: async (req, res) => {
         const userId = req.params.id;
 
-        // get user from auth context
-        const currentUserId = '65900dacf252cbe183316218';
+        const currentUserId = req.currentUserId;
         const currentUser = await userModel.findById(currentUserId);
 
         const user = await userModel.findById(userId)
@@ -80,8 +88,7 @@ module.exports = {
         const payload = req.body;
         const userId = payload.userId;
         const friendUser = payload.friendUser;
-        // get user from auth context
-        const currentUserId = '65900dacf252cbe183316218';
+        const currentUserId = req.currentUserId;
 
         const currentUser = await userModel.findById(currentUserId);
 
@@ -102,4 +109,20 @@ module.exports = {
         console.log(`Friend request was sent by user '${currentUserId}' to user '${userId}'`);
         return res.status(200).json({});
     },
+
+    getUsers: async (req, res) => {
+        const users = await userModel.find({});
+        return res.status(200).json(users);
+    },
+
+    createUser: async (req, res) => {
+        const payload = req.body;
+        const userName = payload.userName;
+        const password = payload.password;
+        const isAdmin = payload.isAdmin;
+
+        const createdUser = await userModel.create({userName, password, isAdmin});
+
+        return res.status(200).json({id: createdUser.id, userName, isAdmin});
+    }
 }

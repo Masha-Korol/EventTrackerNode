@@ -4,9 +4,7 @@ const userModel = require('./../users/user-model');
 module.exports = {
     getChat: async (req, res) => {
         const userId = req.params.userId;
-
-        // get user from authentication context
-        const currentUserId = '65900dacf252cbe183316218';
+        const currentUserId = req.currentUserId;
 
         let chatWithThisUser;
         const chats = await chatModel.find({});
@@ -49,8 +47,8 @@ module.exports = {
         const text = payload.text;
 
         // get user from authentication context
-        const currentUserId = '65900dacf252cbe183316218';
-        const currentUser = await userModel.findById(currentUserId);
+        const currentUserId = req.currentUserId;
+        const currentUserName = req.currentUserName;
 
         const createdMessage = await messageModel.create({authorUser: currentUserId, text: text, date: new Date()});
 
@@ -71,7 +69,7 @@ module.exports = {
                 },
                 {new: true, useFindAndModify: false});
 
-            return res.status(200).json({id: createdMessage.id, userName: currentUser.userName, text: createdMessage.text, date: createdMessage.date.toLocaleString(),
+            return res.status(200).json({id: createdMessage.id, userName: currentUserName, text: createdMessage.text, date: createdMessage.date.toLocaleString(),
                 isCurrentUserAuthor: true});
         }
     }

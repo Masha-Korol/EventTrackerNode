@@ -5,7 +5,7 @@ module.exports = {
     addComment: async (req, res) => {
         let newComment = req.body;
         //TODO get user from auth context
-        newComment.userName = 'marikoroleva';
+        newComment.userName = req.currentUserName;
         newComment.date = new Date();
 
         newComment = await commentModel.create(newComment);
