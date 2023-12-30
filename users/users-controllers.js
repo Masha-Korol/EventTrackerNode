@@ -4,7 +4,7 @@ const {chatModel} = require('./../chats/chat-model');
 module.exports = {
     getProfileInfo: async (req, res) => {
         // get user from auth context
-        const currentUserId = '658cbde710161d4ee9a9ac35';
+        const currentUserId = '65900dacf252cbe183316218';
 
         const user = await userModel.findById(currentUserId)
             .populate({
@@ -51,7 +51,7 @@ module.exports = {
         const userId = req.params.id;
 
         // get user from auth context
-        const currentUserId = '658cbde710161d4ee9a9ac35';
+        const currentUserId = '65900dacf252cbe183316218';
         const currentUser = await userModel.findById(currentUserId);
 
         const user = await userModel.findById(userId)
@@ -81,7 +81,7 @@ module.exports = {
         const userId = payload.userId;
         const friendUser = payload.friendUser;
         // get user from auth context
-        const currentUserId = '658cbde710161d4ee9a9ac35';
+        const currentUserId = '65900dacf252cbe183316218';
 
         const currentUser = await userModel.findById(currentUserId);
 

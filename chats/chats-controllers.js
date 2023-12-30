@@ -6,7 +6,7 @@ module.exports = {
         const userId = req.params.userId;
 
         // get user from authentication context
-        const currentUserId = '658cbde710161d4ee9a9ac35';
+        const currentUserId = '65900dacf252cbe183316218';
 
         let chatWithThisUser;
         const chats = await chatModel.find({});
@@ -49,7 +49,7 @@ module.exports = {
         const text = payload.text;
 
         // get user from authentication context
-        const currentUserId = '658cbde710161d4ee9a9ac35';
+        const currentUserId = '65900dacf252cbe183316218';
         const currentUser = await userModel.findById(currentUserId);
 
         const createdMessage = await messageModel.create({authorUser: currentUserId, text: text, date: new Date()});

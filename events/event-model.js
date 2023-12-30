@@ -6,6 +6,7 @@ const eventSchema = new mongoose.Schema(
         eventDescription: {type: String, required: true},
         date: {type: Date, required: true},
         startTime: {type: String, required: true},
+        eventPosterFileName: {type: String, required: true},
         venueId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'venue'
@@ -24,15 +25,6 @@ const eventSchema = new mongoose.Schema(
 
 const eventModel = mongoose.model('event', eventSchema);
 
-const posterSchema = new mongoose.Schema(
-    {
-
-    },
-    {id: true}
-).set('toJSON', {virtuals: true});
-
-const posterModel = mongoose.model('poster', posterSchema);
-
 const markSchema = new mongoose.Schema(
     {
         userId: {
@@ -50,4 +42,4 @@ const markSchema = new mongoose.Schema(
 
 const markModel = mongoose.model('mark', markSchema);
 
-module.exports = {eventModel, posterModel, markModel};
+module.exports = {eventModel, markModel};

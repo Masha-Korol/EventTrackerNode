@@ -17,6 +17,10 @@ module.exports = {
     addVenue: async (req, res) => {
         const createdVenue = await venueModel.create(req.body);
         console.log(`Venue was created - ${createdVenue}`);
-        return res.status(200).json(createdVenue);
+
+        const venue = await venueModel.findById(createdVenue.id)
+            .populate('cityId');
+        const venueResult = {id: venue.id, venueName: venue.venueName, cityName: venue.cityId.cityName};
+        return res.status(200).json(venueResult);
     }
 }

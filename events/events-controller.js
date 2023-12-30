@@ -1,14 +1,15 @@
 const {eventModel, markModel} = require('./event-model');
 const userModel = require('./../users/user-model');
+const fs = require('fs');
 
 module.exports = {
     getEvents: async (req, res) => {
         const eventsResults = [];
         const events = await eventModel.find({});
 
-        //TODO posterFile ???
         for (const event of events) {
-            eventsResults.push({id: (await event).id, posterFile: 'gorillaz.jpg'});
+            const posterFile = fs.readFileSync(`./images/${event.eventPosterFileName}`, 'base64');
+            eventsResults.push({id: event.id, posterFile: posterFile});
         }
 
         return res.status(200).json(eventsResults);
@@ -42,12 +43,11 @@ module.exports = {
         });
 
         // get user from authentication context
-        const userId = '658cbde710161d4ee9a9ac35';
+        const userId = '65900dacf252cbe183316218';
         const user = await userModel.findById(userId);
         resultEvent.willGo = user.events.includes(eventId);
 
-        //TODO
-        resultEvent.posterFile = 'gorillaz.jpg';
+        resultEvent.posterFile = fs.readFileSync(`./images/${event.eventPosterFileName}`, 'base64');
 
         const mark = await markModel.findOne({userId, eventId});
         resultEvent.mark = !mark ? undefined : mark.mark;
@@ -57,21 +57,31 @@ module.exports = {
 
     createEvent: async (req, res) => {
         const payload = req.body;
-        const eventName = payload.eventName;
-        const eventDescription = payload.eventDescription;
-        const date = payload.date;
-        const startTime = payload.startTime;
-        const venueId = payload.venueId;
-        const artistId = payload.artistId;
 
-        const createdEvent = await eventModel.create(req.body);
+        const eventToBeCreated = {eventName: payload.eventName, eventDescription: payload.eventDescription, date: payload.date, startTime: payload.startTime,
+            eventPosterFileName: payload.eventPosterFileName, venueId: payload.venueId, artistId: payload.artistId};
+
+        const createdEvent = await eventModel.create(eventToBeCreated);
 
         console.log(`Event was created: ${JSON.stringify(createdEvent)}`);
         return res.status(200).json(createdEvent);
     },
 
     uploadEventPoster: async (req, res) => {
-        console.log(`Files got: ${JSON.stringify(req.files.length)}`);
+        const file = req.files.file;
+        const fileName = file.name;
+        const filePath = `./images/${fileName}`;
+        const fileContent = file.data;
+
+        fs.writeFile(filePath, fileContent, (err) => {
+                if (err) {
+                    console.error(`Error saving file:`, err);
+                } else {
+                    console.log(`File ${fileName} was saved successfully.`);
+                }
+        });
+
+        return res.status(200).json({fileName});
     },
 
     updateEvent: (req, res) => {
@@ -102,7 +112,7 @@ module.exports = {
     modifyEventState: async (req, res) => {
         const eventId = req.params.id;
         // get user from authentication context
-        const userId = '658cbde710161d4ee9a9ac35';
+        const userId = '65900dacf252cbe183316218';
 
         const user = await userModel.findById(userId);
         if (user.events.includes(eventId)) {
@@ -123,7 +133,7 @@ module.exports = {
         const eventId = req.params.id;
         const payload = req.body;
         // get user from authentication context
-        const userId = '658cbde710161d4ee9a9ac35';
+        const userId = '65900dacf252cbe183316218';
         const newMark = payload.newMark;
 
         const mark = await markModel.findOne({userId, eventId});
