@@ -25,7 +25,7 @@ const roleValidator = (requiredRoles) => {
 };
 
 function isUserRoleInRequiredRoles(requiredRoles, userRoles) {
-    return requiredRoles.filter(function(value) {
+    return requiredRoles.some(function(value) {
         return userRoles.includes(value);
     });
 }
