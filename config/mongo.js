@@ -13,7 +13,7 @@ async function connectToMongoDB() {
 function getMongoDBUri() {
     const mongoUsername = process.env.MONGO_USERNAME || 'maria';
     const mongoPassword = process.env.MONGO_PASSWORD || 'fh348a';
-    const mongoHost = process.env.MONGO_HOST || 'localhost';
+    const mongoHost = process.env.MONGO_HOST || 'et-mongo';
     const mongoPort = process.env.MONGO_PORT || 27017;
     const mongoDatabase = process.env.MONGO_DATABASE || 'event-tracker';
 
