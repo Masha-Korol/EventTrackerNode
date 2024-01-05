@@ -10,8 +10,6 @@ const adminOnlyUrls = [
 ];
 
 async function basicAuth(req, res, next) {
-    console.log(`request = ${JSON.stringify(req)}`);
-
     // make authenticate path public
     if (req.path === '/api/users/login') {
         return next();
