@@ -123,6 +123,6 @@ module.exports = {
 
         const createdUser = await userModel.create({userName, password, isAdmin});
 
-        return res.status(200).json({id: createdUser.id, userName, isAdmin});
+        return res.status(200).json({id: createdUser.id, userName, password, isAdmin});
     }
 }
