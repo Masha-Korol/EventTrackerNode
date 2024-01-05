@@ -1,14 +1,5 @@
 const userModel = require('./../users/user-model');
 
-const adminOnlyUrls = [
-    '/api/artists/', // POST/GET
-    '/api/cities/', // POST/GET
-    '/api/events/', // POST
-    '/api/events/posters', // POST
-    '/api/events/:id', // PATCH/DELETE
-    '/api/users/', // POST
-];
-
 async function basicAuth(req, res, next) {
     // make authenticate path public
     if (req.path === '/api/users/login') {
@@ -32,6 +23,7 @@ async function basicAuth(req, res, next) {
     // attach user to request object
     req.currentUserId = currentUser.id;
     req.currentUserName = currentUser.userName;
+    req.isAdmin = currentUser.isAdmin;
 
     next();
 }
