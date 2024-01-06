@@ -7,7 +7,7 @@ module.exports = {
     },
 
     addCity: async (req, res) => {
-        const newCity= await cityModel.create(req.body);
+        const newCity = await cityModel.create(req.body);
 
         console.log(`City was created - ${newCity}`);
         return res.status(200).json(newCity);
