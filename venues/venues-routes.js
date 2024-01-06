@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const VenuesController = require('./venues-controller');
+const {roleValidator} = require('../util/authorization-helper');
 
-router.get('/', VenuesController.getVenues);
-router.post('/', VenuesController.addVenue);
+router.get('/', roleValidator(['admin']), VenuesController.getVenues);
+router.post('/', roleValidator(['admin']), VenuesController.addVenue);
 
 module.exports = router;
